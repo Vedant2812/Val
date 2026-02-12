@@ -90,7 +90,7 @@
       transform: translate3d(0,0,0) scale(1);
       transition: transform 220ms ease, opacity 220ms ease;
       will-change: transform;
-      touch-action: none; /* important for mobile swiping */
+      touch-action: none;
       user-select:none;
     }
     .card::before{
@@ -120,6 +120,7 @@
       transform: rotate(-16deg);
       opacity:0;
       z-index:3;
+      pointer-events:none;
     }
     .badge.like{left:16px;color:var(--like)}
     .badge.nope{right:16px;color:var(--nope); transform: rotate(16deg);}
@@ -180,6 +181,7 @@
     .undo{color:#555; font-weight:900; font-size:18px}
     .msg{color:#ff2d55; font-weight:900; font-size:18px}
 
+    /* End screen */
     .end{
       position:absolute; inset:0;
       display:none;
@@ -187,6 +189,7 @@
       justify-content:center;
       padding:24px;
       text-align:center;
+      z-index:10;
     }
     .end .box{
       width:100%;
@@ -210,6 +213,103 @@
       box-shadow: 0 16px 35px rgba(255,45,85,.25);
     }
     .end button:active{transform:scale(.99)}
+
+    /* MATCH overlay */
+    .match{
+      position:absolute;
+      inset:0;
+      display:none;
+      z-index:20;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+      text-align:center;
+      background:
+        radial-gradient(900px 600px at 50% 30%, rgba(255,255,255,.22), transparent 60%),
+        linear-gradient(135deg, rgba(255,45,85,.92), rgba(255,149,0,.92));
+      color:#fff;
+    }
+    .match .panel{
+      width:100%;
+      max-width: 380px;
+      border-radius: 26px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.25);
+      box-shadow: 0 25px 80px rgba(0,0,0,.28);
+      padding: 18px 16px 16px;
+      backdrop-filter: blur(10px);
+    }
+    .match .title{
+      font-weight: 1000;
+      letter-spacing: 2px;
+      font-size: 46px;
+      line-height:1;
+      text-shadow: 0 10px 30px rgba(0,0,0,.35);
+      margin: 8px 0 10px;
+    }
+    .match .sub{
+      opacity:.95;
+      font-size: 14px;
+      margin: 0 0 14px;
+      text-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    .match .avatars{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      margin: 12px 0 14px;
+    }
+    .avatar{
+      width:110px;
+      height:150px;
+      border-radius: 18px;
+      overflow:hidden;
+      border: 2px solid rgba(255,255,255,.45);
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+      position:relative;
+      background: rgba(255,255,255,.12);
+    }
+    .avatar img{
+      width:100%;height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .match .cta{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top: 12px;
+    }
+    .match button{
+      border:0;
+      border-radius: 16px;
+      padding: 14px 14px;
+      font-weight: 900;
+      cursor:pointer;
+    }
+    .btnPrimary{
+      background: #fff;
+      color: #ff2d55;
+      box-shadow: 0 16px 40px rgba(0,0,0,.18);
+    }
+    .btnGhost{
+      background: rgba(255,255,255,.18);
+      color:#fff;
+      border: 1px solid rgba(255,255,255,.28);
+    }
+    .match button:active{transform: scale(.99)}
+
+    /* Confetti canvas */
+    #confetti{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+      z-index:30;
+      display:none;
+    }
   </style>
 </head>
 <body>
@@ -224,6 +324,32 @@
     </div>
 
     <div class="deck" id="deck">
+      <canvas id="confetti"></canvas>
+
+      <!-- MATCH overlay -->
+      <div class="match" id="match">
+        <div class="panel">
+          <div class="title">MATCH!</div>
+          <p class="sub">You and <b id="matchName">Vedant</b> liked each other. Obviously.</p>
+
+          <div class="avatars">
+            <!-- Left avatar is optional "her". If you don't want her photo, keep placeholder -->
+            <div class="avatar" title="Her">
+              <img id="herImg" alt="Her" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23ffffff' stop-opacity='.22'/%3E%3Cstop offset='1' stop-color='%23ffffff' stop-opacity='.05'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='300' height='400' rx='28' fill='url(%23g)'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-family='Arial' font-size='26'%3EYou%3C/text%3E%3C/svg%3E"/>
+            </div>
+            <div class="avatar" title="The Special Vedant">
+              <img id="matchImg" alt="Match" />
+            </div>
+          </div>
+
+          <div class="cta">
+            <button class="btnPrimary" id="askBtn">Will you be my Valentine? 💘</button>
+            <button class="btnGhost" id="keepSwipingBtn">Keep swiping (for science)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- End overlay -->
       <div class="end" id="end">
         <div class="box">
           <h1>Okay… one last swipe 😌</h1>
@@ -245,25 +371,37 @@
     /**
      * 1) Put your images in /img
      * 2) Update name + subtitle + image path below
+     * 3) Set SPECIAL_MATCH_ID to the profile id that should trigger the MATCH overlay on RIGHT swipe.
      */
+
     const PROFILES = [
-      { name: "Vedant (Soft Boy Mode)", subtitle: "Says sorry when you bump into him.", img: "img/vedant1.jpg" },
-      { name: "Vedant (Gym Bro Arc)", subtitle: "Protein shake. Respectfully.", img: "img/vedant2.jpg" },
-      { name: "Vedant (CEO Energy)", subtitle: "Asks for a ‘quick 2 minute call’.", img: "img/vedant3.jpg" },
-      { name: "Vedant (Hopeless Romantic)", subtitle: "Has a playlist. Unfortunately.", img: "img/vedant4.jpg" },
-      { name: "Vedant (Golden Retriever)", subtitle: "Excited. About everything.", img: "img/vedant5.jpg" },
+      { id: "soft",  name: "Vedant (Soft Boy Mode)",     subtitle: "Says sorry when you bump into him.", img: "img/vedant1.jpg" },
+      { id: "gym",   name: "Vedant (Gym Bro Arc)",       subtitle: "Protein shake. Respectfully.",       img: "img/vedant2.jpg" },
+      { id: "ceo",   name: "Vedant (CEO Energy)",        subtitle: "Asks for a ‘quick 2 minute call’.",  img: "img/vedant3.jpg" },
+      { id: "rom",   name: "Vedant (Hopeless Romantic)", subtitle: "Has a playlist. Unfortunately.",     img: "img/vedant4.jpg" },
+      { id: "gr",    name: "Vedant (Golden Retriever)",  subtitle: "Excited. About everything.",         img: "img/vedant5.jpg" },
     ];
 
-    // Tweak feel:
-    const SWIPE_THRESHOLD = 110;         // px distance to count swipe
-    const ROTATION_MAX = 14;             // degrees
-    const OFFSCREEN_X = 420;             // px to fling out
-    const OFFSCREEN_Y = 70;              // px slight vertical drift
-    const STACK_SCALE_STEP = 0.03;       // scale difference down the stack
-    const STACK_Y_STEP = 8;              // vertical offset down the stack
+    // 👉 Choose which card triggers the MATCH overlay when swiped right:
+    const SPECIAL_MATCH_ID = "rom";
+
+    // Feel tweaks:
+    const SWIPE_THRESHOLD = 110;
+    const ROTATION_MAX = 14;
+    const OFFSCREEN_X = 420;
+    const OFFSCREEN_Y = 70;
+    const STACK_SCALE_STEP = 0.03;
+    const STACK_Y_STEP = 8;
 
     const deck = document.getElementById("deck");
     const endEl = document.getElementById("end");
+
+    const matchEl = document.getElementById("match");
+    const matchNameEl = document.getElementById("matchName");
+    const matchImgEl = document.getElementById("matchImg");
+
+    const confettiCanvas = document.getElementById("confetti");
+    const ctx = confettiCanvas.getContext("2d");
 
     const nopeBtn = document.getElementById("nopeBtn");
     const likeBtn = document.getElementById("likeBtn");
@@ -273,15 +411,123 @@
     const helpBtn  = document.getElementById("helpBtn");
     const finalYes = document.getElementById("finalYes");
 
+    const askBtn = document.getElementById("askBtn");
+    const keepSwipingBtn = document.getElementById("keepSwipingBtn");
+
+    // --- Subtle audio (generated tones; no external files)
+    let audioCtx = null;
+    function ensureAudio(){
+      if(!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      // resume if suspended (mobile)
+      if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+    }
+    function tone({freq=440, duration=0.06, type="sine", gain=0.03, ramp=0.02}){
+      if(!audioCtx) return;
+      const t0 = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t0);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(gain, t0 + ramp);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+      osc.connect(g).connect(audioCtx.destination);
+      osc.start(t0);
+      osc.stop(t0 + duration + 0.02);
+    }
+    function sfxSwipeRight(){ tone({freq: 660, duration: 0.06, type:"triangle", gain:0.03}); tone({freq: 880, duration: 0.05, type:"triangle", gain:0.022}); }
+    function sfxSwipeLeft(){  tone({freq: 220, duration: 0.07, type:"sine", gain:0.03}); tone({freq: 180, duration: 0.07, type:"sine", gain:0.02}); }
+    function sfxMatch(){ tone({freq: 523.25, duration:0.07, type:"triangle", gain:0.035}); tone({freq: 659.25, duration:0.07, type:"triangle", gain:0.03}); tone({freq: 783.99, duration:0.10, type:"triangle", gain:0.028}); }
+
+    // --- State
     let index = 0;
-    let history = []; // store {profile, decision}
+    let history = []; // {profile, decision}
+    let isOverlayOpen = false;
+
+    // --- Confetti (lightweight)
+    let confettiPieces = [];
+    let confettiRaf = null;
+
+    function resizeConfetti(){
+      const rect = confettiCanvas.getBoundingClientRect();
+      confettiCanvas.width = Math.floor(rect.width * devicePixelRatio);
+      confettiCanvas.height = Math.floor(rect.height * devicePixelRatio);
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    }
+    window.addEventListener("resize", resizeConfetti);
+
+    function startConfetti(durationMs = 1600){
+      resizeConfetti();
+      confettiCanvas.style.display = "block";
+
+      const W = confettiCanvas.getBoundingClientRect().width;
+      const H = confettiCanvas.getBoundingClientRect().height;
+
+      confettiPieces = [];
+      const count = 90; // subtle
+      for(let i=0;i<count;i++){
+        confettiPieces.push({
+          x: Math.random() * W,
+          y: -20 - Math.random() * H * 0.3,
+          vx: (Math.random() - 0.5) * 2.2,
+          vy: 2.3 + Math.random() * 2.8,
+          size: 6 + Math.random() * 6,
+          rot: Math.random() * Math.PI,
+          vr: (Math.random() - 0.5) * 0.2,
+          alpha: 0.85,
+        });
+      }
+
+      const start = performance.now();
+      cancelAnimationFrame(confettiRaf);
+
+      function frame(now){
+        const elapsed = now - start;
+        const fade = Math.min(Math.max((durationMs - elapsed) / 600, 0), 1);
+
+        ctx.clearRect(0,0, confettiCanvas.width, confettiCanvas.height);
+
+        // no explicit colors requested by user; we’ll use default fillStyle per piece but not set to a palette
+        confettiPieces.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vr;
+          p.alpha = 0.2 + 0.65 * fade;
+
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          // using current fillStyle without specifying colors explicitly; rely on browser default (black)
+          // To keep it visible, we’ll alternate between black/white via globalCompositeOperation trick:
+          ctx.globalCompositeOperation = "screen";
+          ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+          ctx.restore();
+        });
+
+        if(elapsed < durationMs){
+          confettiRaf = requestAnimationFrame(frame);
+        } else {
+          confettiCanvas.style.display = "none";
+          ctx.clearRect(0,0, confettiCanvas.width, confettiCanvas.height);
+        }
+      }
+      confettiRaf = requestAnimationFrame(frame);
+    }
+
+    function escapeHTML(str){
+      return String(str).replace(/[&<>"']/g, s => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+      }[s]));
+    }
 
     function createCard(profile, positionFromTop){
       const card = document.createElement("div");
       card.className = "card";
-      card.dataset.name = profile.name;
+      card.dataset.id = profile.id;
 
-      // stack transform for cards below the top
       const scale = 1 - (positionFromTop * STACK_SCALE_STEP);
       const y = positionFromTop * STACK_Y_STEP;
       card.style.transform = `translate3d(0, ${y}px, 0) scale(${scale})`;
@@ -316,14 +562,7 @@
       return card;
     }
 
-    function escapeHTML(str){
-      return String(str).replace(/[&<>"']/g, s => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
-      }[s]));
-    }
-
     function render(){
-      // Clear existing cards (keep end overlay)
       [...deck.querySelectorAll(".card")].forEach(c => c.remove());
 
       const remaining = PROFILES.slice(index);
@@ -335,10 +574,9 @@
         endEl.style.display = "none";
       }
 
-      // We render up to 3 cards for performance
-      const toRender = remaining.slice(0, 3).reverse(); // bottom first
+      const toRender = remaining.slice(0, 3).reverse();
       toRender.forEach((profile, i) => {
-        const positionFromTop = (toRender.length - 1) - i; // 0 = top
+        const positionFromTop = (toRender.length - 1) - i;
         const card = createCard(profile, positionFromTop);
         deck.appendChild(card);
       });
@@ -351,30 +589,31 @@
       if(cards.length === 0) return;
       const topCard = cards[cards.length - 1];
 
-      let startX = 0, startY = 0;
-      let currentX = 0, currentY = 0;
-      let isDragging = false;
+      let startX=0, startY=0;
+      let currentX=0, currentY=0;
+      let isDragging=false;
 
       const likeBadge = topCard.querySelector(".badge.like");
       const nopeBadge = topCard.querySelector(".badge.nope");
 
       const onPointerDown = (e) => {
+        if(isOverlayOpen) return;
+        ensureAudio(); // enable audio after first interaction
         isDragging = true;
         topCard.style.transition = "none";
-        const p = getPoint(e);
+        const p = { x: e.clientX, y: e.clientY };
         startX = p.x; startY = p.y;
       };
 
       const onPointerMove = (e) => {
-        if(!isDragging) return;
-        const p = getPoint(e);
+        if(!isDragging || isOverlayOpen) return;
+        const p = { x: e.clientX, y: e.clientY };
         currentX = p.x - startX;
         currentY = p.y - startY;
 
         const rot = clamp((currentX / 320) * ROTATION_MAX, -ROTATION_MAX, ROTATION_MAX);
         topCard.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) rotate(${rot}deg)`;
 
-        // badges
         const opacity = Math.min(Math.abs(currentX) / 120, 1);
         if(currentX > 0){
           likeBadge.style.opacity = opacity;
@@ -386,7 +625,7 @@
       };
 
       const onPointerUp = () => {
-        if(!isDragging) return;
+        if(!isDragging || isOverlayOpen) return;
         isDragging = false;
 
         const absX = Math.abs(currentX);
@@ -394,7 +633,6 @@
           const dir = currentX > 0 ? "right" : "left";
           fling(topCard, dir);
         } else {
-          // snap back
           topCard.style.transition = "transform 220ms ease";
           topCard.style.transform = "";
           likeBadge.style.opacity = 0;
@@ -403,22 +641,22 @@
         currentX = 0; currentY = 0;
       };
 
-      // Pointer events (covers mouse + touch)
       topCard.addEventListener("pointerdown", onPointerDown);
       window.addEventListener("pointermove", onPointerMove);
       window.addEventListener("pointerup", onPointerUp, { once:false });
 
-      // Prevent default image drag
       topCard.querySelector("img").addEventListener("dragstart", e => e.preventDefault());
-
-      function getPoint(e){
-        return { x: e.clientX, y: e.clientY };
-      }
 
       function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
 
       function fling(card, dir){
+        if(isOverlayOpen) return;
+
         const decision = (dir === "right") ? "like" : "nope";
+        const profile = PROFILES[index];
+
+        // audio
+        if(decision === "like") sfxSwipeRight(); else sfxSwipeLeft();
 
         // animate offscreen
         card.style.transition = "transform 260ms ease, opacity 260ms ease";
@@ -428,28 +666,31 @@
         card.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rot}deg)`;
         card.style.opacity = "0.2";
 
-        // store history and advance
-        const profile = PROFILES[index];
         history.push({ profile, decision });
         index++;
 
-        // cleanup after animation
+        // show match overlay if right-swipe on special card
+        const shouldMatch = (decision === "like" && profile.id === SPECIAL_MATCH_ID);
+
         setTimeout(() => {
           render();
+          if(shouldMatch){
+            openMatch(profile);
+          }
         }, 220);
       }
 
-      // Buttons drive same logic
+      // Buttons
       nopeBtn.onclick = () => fling(topCard, "left");
       likeBtn.onclick = () => fling(topCard, "right");
 
-      // Message button: cute popup (you can customize)
       msgBtn.onclick = () => {
+        ensureAudio();
         alert("Message feature coming soon… but your smile is already delivered ✅");
       };
 
-      // Undo
       undoBtn.onclick = () => {
+        if(isOverlayOpen) return;
         if(history.length === 0) return;
         history.pop();
         index = Math.max(0, index - 1);
@@ -457,7 +698,35 @@
       };
     }
 
+    function openMatch(profile){
+      isOverlayOpen = true;
+
+      matchNameEl.textContent = profile.name;
+      matchImgEl.src = profile.img;
+
+      matchEl.style.display = "flex";
+      sfxMatch();
+      startConfetti(1700);
+    }
+
+    function closeMatch(){
+      matchEl.style.display = "none";
+      isOverlayOpen = false;
+    }
+
+    askBtn.onclick = () => {
+      ensureAudio();
+      startConfetti(1400);
+      alert("YAYYYYY 💘 Screenshot this and send it to me 😌");
+    };
+
+    keepSwipingBtn.onclick = () => {
+      ensureAudio();
+      closeMatch();
+    };
+
     resetBtn.onclick = () => {
+      closeMatch();
       index = 0;
       history = [];
       render();
@@ -465,12 +734,14 @@
 
     helpBtn.onclick = () => {
       alert(
-        "How to play:\n\n• Swipe right = LIKE this version of me\n• Swipe left = NOPE (but I’ll recover)\n\nTip: Replace PROFILES with your own photos/names in the code."
+        "How to play:\n\n• Swipe right = LIKE this version of me\n• Swipe left = NOPE\n\nSpecial: One swipe-right triggers a MATCH screen 💘\n\nTo customize, edit PROFILES + SPECIAL_MATCH_ID in the code."
       );
     };
 
     finalYes.onclick = () => {
-      // Replace with your final page / WhatsApp link / confetti etc.
+      ensureAudio();
+      startConfetti(1600);
+      sfxMatch();
       alert("YAYYYYY 💘 Screenshot this and send it to me 😌");
     };
 
