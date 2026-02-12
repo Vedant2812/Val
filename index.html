@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Definitely Not Tinder</title>
+  <style>
+    :root{
+      --bg1:#ff5864;
+      --bg2:#ff655b;
+      --cardRadius: 18px;
+      --shadow: 0 20px 60px rgba(0,0,0,.18);
+      --text: #0b0b0f;
+      --muted: rgba(0,0,0,.55);
+      --white: #fff;
+      --like: #2fd38a;
+      --nope: #ff4d5a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(255,255,255,.35), transparent 60%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      color:var(--text);
+      overflow:hidden;
+    }
+    .app{
+      width:min(420px, 92vw);
+      height:min(760px, 92vh);
+      background: rgba(255,255,255,.65);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 28px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.22);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      position:relative;
+    }
+    .topbar{
+      height:64px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 16px;
+    }
+    .logo{
+      display:flex; align-items:center; gap:10px;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .flame{
+      width:30px;height:30px;border-radius:10px;
+      background: linear-gradient(135deg, #ff2d55, #ff9500);
+      display:grid;place-items:center;
+      color:#fff;font-weight:900;
+      box-shadow: 0 10px 25px rgba(255,45,85,.25);
+    }
+    .topbtn{
+      width:38px;height:38px;border-radius:14px;
+      border:1px solid rgba(0,0,0,.08);
+      background: rgba(255,255,255,.7);
+      display:grid;place-items:center;
+      cursor:pointer;
+      user-select:none;
+    }
+    .topbtn:active{transform:scale(.98)}
+    .deck{
+      flex:1;
+      position:relative;
+      padding: 8px 16px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .card{
+      position:absolute;
+      width:100%;
+      height:100%;
+      border-radius: var(--cardRadius);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      background:#ddd;
+      transform: translate3d(0,0,0) scale(1);
+      transition: transform 220ms ease, opacity 220ms ease;
+      will-change: transform;
+      touch-action: none; /* important for mobile swiping */
+      user-select:none;
+    }
+    .card::before{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(180deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.02) 55%, rgba(0,0,0,.55) 100%);
+      pointer-events:none;
+      z-index:2;
+    }
+    .card img{
+      width:100%;height:100%;
+      object-fit:cover;
+      display:block;
+      filter:saturate(1.05) contrast(1.02);
+    }
+    .badge{
+      position:absolute;
+      top:18px;
+      padding: 8px 12px;
+      border-radius: 14px;
+      font-weight:900;
+      letter-spacing: 2px;
+      font-size: 20px;
+      border:4px solid currentColor;
+      background: rgba(255,255,255,.06);
+      text-transform:uppercase;
+      transform: rotate(-16deg);
+      opacity:0;
+      z-index:3;
+    }
+    .badge.like{left:16px;color:var(--like)}
+    .badge.nope{right:16px;color:var(--nope); transform: rotate(16deg);}
+    .meta{
+      position:absolute;
+      left:16px;
+      right:16px;
+      bottom:16px;
+      z-index:3;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:10px;
+      color:#fff;
+    }
+    .name{
+      font-size: 28px;
+      font-weight: 900;
+      text-shadow: 0 8px 18px rgba(0,0,0,.35);
+      line-height:1.1;
+    }
+    .subtitle{
+      font-size: 14px;
+      opacity:.9;
+      text-shadow: 0 8px 18px rgba(0,0,0,.35);
+      margin-top:6px;
+    }
+    .hint{
+      font-size: 12px;
+      opacity:.8;
+      text-align:right;
+      text-shadow: 0 8px 18px rgba(0,0,0,.35);
+      max-width: 150px;
+    }
+    .bottombar{
+      height:92px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      padding: 12px 16px 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.0), rgba(255,255,255,.55));
+    }
+    .action{
+      width:58px;height:58px;
+      border-radius: 22px;
+      border: 1px solid rgba(0,0,0,.08);
+      background: rgba(255,255,255,.8);
+      box-shadow: 0 18px 35px rgba(0,0,0,.12);
+      cursor:pointer;
+      display:grid;place-items:center;
+      user-select:none;
+    }
+    .action.big{width:66px;height:66px;border-radius: 26px}
+    .action:active{transform:scale(.98)}
+    .x{color:var(--nope); font-weight:900; font-size:22px}
+    .heart{color:var(--like); font-weight:900; font-size:22px}
+    .undo{color:#555; font-weight:900; font-size:18px}
+    .msg{color:#ff2d55; font-weight:900; font-size:18px}
+
+    .end{
+      position:absolute; inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      text-align:center;
+    }
+    .end .box{
+      width:100%;
+      border-radius: 22px;
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(255,255,255,.4);
+      box-shadow: 0 20px 60px rgba(0,0,0,.18);
+      padding: 22px;
+    }
+    .end h1{margin:0 0 10px; font-size: 28px}
+    .end p{margin:0 0 18px; color: var(--muted); line-height:1.4}
+    .end button{
+      width:100%;
+      border:0;
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-weight: 900;
+      cursor:pointer;
+      background: linear-gradient(135deg, #ff2d55, #ff9500);
+      color:#fff;
+      box-shadow: 0 16px 35px rgba(255,45,85,.25);
+    }
+    .end button:active{transform:scale(.99)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="topbtn" id="helpBtn" title="Help">?</div>
+      <div class="logo">
+        <div class="flame">V</div>
+        <div>Vedantr</div>
+      </div>
+      <div class="topbtn" id="resetBtn" title="Reset">↻</div>
+    </div>
+
+    <div class="deck" id="deck">
+      <div class="end" id="end">
+        <div class="box">
+          <h1>Okay… one last swipe 😌</h1>
+          <p>You’ve reviewed every version of me. The final version is: <b>me asking you out.</b></p>
+          <button id="finalYes">Will you be my Valentine? 💘</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottombar">
+      <div class="action" id="undoBtn" title="Undo"><span class="undo">↩</span></div>
+      <div class="action big" id="nopeBtn" title="Nope"><span class="x">✕</span></div>
+      <div class="action" id="msgBtn" title="Message"><span class="msg">💬</span></div>
+      <div class="action big" id="likeBtn" title="Like"><span class="heart">♥</span></div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * 1) Put your images in /img
+     * 2) Update name + subtitle + image path below
+     */
+    const PROFILES = [
+      { name: "Vedant (Soft Boy Mode)", subtitle: "Says sorry when you bump into him.", img: "img/vedant1.jpg" },
+      { name: "Vedant (Gym Bro Arc)", subtitle: "Protein shake. Respectfully.", img: "img/vedant2.jpg" },
+      { name: "Vedant (CEO Energy)", subtitle: "Asks for a ‘quick 2 minute call’.", img: "img/vedant3.jpg" },
+      { name: "Vedant (Hopeless Romantic)", subtitle: "Has a playlist. Unfortunately.", img: "img/vedant4.jpg" },
+      { name: "Vedant (Golden Retriever)", subtitle: "Excited. About everything.", img: "img/vedant5.jpg" },
+    ];
+
+    // Tweak feel:
+    const SWIPE_THRESHOLD = 110;         // px distance to count swipe
+    const ROTATION_MAX = 14;             // degrees
+    const OFFSCREEN_X = 420;             // px to fling out
+    const OFFSCREEN_Y = 70;              // px slight vertical drift
+    const STACK_SCALE_STEP = 0.03;       // scale difference down the stack
+    const STACK_Y_STEP = 8;              // vertical offset down the stack
+
+    const deck = document.getElementById("deck");
+    const endEl = document.getElementById("end");
+
+    const nopeBtn = document.getElementById("nopeBtn");
+    const likeBtn = document.getElementById("likeBtn");
+    const undoBtn = document.getElementById("undoBtn");
+    const msgBtn  = document.getElementById("msgBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const helpBtn  = document.getElementById("helpBtn");
+    const finalYes = document.getElementById("finalYes");
+
+    let index = 0;
+    let history = []; // store {profile, decision}
+
+    function createCard(profile, positionFromTop){
+      const card = document.createElement("div");
+      card.className = "card";
+      card.dataset.name = profile.name;
+
+      // stack transform for cards below the top
+      const scale = 1 - (positionFromTop * STACK_SCALE_STEP);
+      const y = positionFromTop * STACK_Y_STEP;
+      card.style.transform = `translate3d(0, ${y}px, 0) scale(${scale})`;
+
+      const img = document.createElement("img");
+      img.src = profile.img;
+      img.alt = profile.name;
+
+      const like = document.createElement("div");
+      like.className = "badge like";
+      like.textContent = "LIKE";
+
+      const nope = document.createElement("div");
+      nope.className = "badge nope";
+      nope.textContent = "NOPE";
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.innerHTML = `
+        <div>
+          <div class="name">${escapeHTML(profile.name)}</div>
+          <div class="subtitle">${escapeHTML(profile.subtitle || "")}</div>
+        </div>
+        <div class="hint">Swipe right if you like this version of me. Swipe left if you love me anyway.</div>
+      `;
+
+      card.appendChild(img);
+      card.appendChild(like);
+      card.appendChild(nope);
+      card.appendChild(meta);
+
+      return card;
+    }
+
+    function escapeHTML(str){
+      return String(str).replace(/[&<>"']/g, s => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+      }[s]));
+    }
+
+    function render(){
+      // Clear existing cards (keep end overlay)
+      [...deck.querySelectorAll(".card")].forEach(c => c.remove());
+
+      const remaining = PROFILES.slice(index);
+
+      if(remaining.length === 0){
+        endEl.style.display = "flex";
+        return;
+      } else {
+        endEl.style.display = "none";
+      }
+
+      // We render up to 3 cards for performance
+      const toRender = remaining.slice(0, 3).reverse(); // bottom first
+      toRender.forEach((profile, i) => {
+        const positionFromTop = (toRender.length - 1) - i; // 0 = top
+        const card = createCard(profile, positionFromTop);
+        deck.appendChild(card);
+      });
+
+      attachTopCardHandlers();
+    }
+
+    function attachTopCardHandlers(){
+      const cards = deck.querySelectorAll(".card");
+      if(cards.length === 0) return;
+      const topCard = cards[cards.length - 1];
+
+      let startX = 0, startY = 0;
+      let currentX = 0, currentY = 0;
+      let isDragging = false;
+
+      const likeBadge = topCard.querySelector(".badge.like");
+      const nopeBadge = topCard.querySelector(".badge.nope");
+
+      const onPointerDown = (e) => {
+        isDragging = true;
+        topCard.style.transition = "none";
+        const p = getPoint(e);
+        startX = p.x; startY = p.y;
+      };
+
+      const onPointerMove = (e) => {
+        if(!isDragging) return;
+        const p = getPoint(e);
+        currentX = p.x - startX;
+        currentY = p.y - startY;
+
+        const rot = clamp((currentX / 320) * ROTATION_MAX, -ROTATION_MAX, ROTATION_MAX);
+        topCard.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) rotate(${rot}deg)`;
+
+        // badges
+        const opacity = Math.min(Math.abs(currentX) / 120, 1);
+        if(currentX > 0){
+          likeBadge.style.opacity = opacity;
+          nopeBadge.style.opacity = 0;
+        } else {
+          nopeBadge.style.opacity = opacity;
+          likeBadge.style.opacity = 0;
+        }
+      };
+
+      const onPointerUp = () => {
+        if(!isDragging) return;
+        isDragging = false;
+
+        const absX = Math.abs(currentX);
+        if(absX > SWIPE_THRESHOLD){
+          const dir = currentX > 0 ? "right" : "left";
+          fling(topCard, dir);
+        } else {
+          // snap back
+          topCard.style.transition = "transform 220ms ease";
+          topCard.style.transform = "";
+          likeBadge.style.opacity = 0;
+          nopeBadge.style.opacity = 0;
+        }
+        currentX = 0; currentY = 0;
+      };
+
+      // Pointer events (covers mouse + touch)
+      topCard.addEventListener("pointerdown", onPointerDown);
+      window.addEventListener("pointermove", onPointerMove);
+      window.addEventListener("pointerup", onPointerUp, { once:false });
+
+      // Prevent default image drag
+      topCard.querySelector("img").addEventListener("dragstart", e => e.preventDefault());
+
+      function getPoint(e){
+        return { x: e.clientX, y: e.clientY };
+      }
+
+      function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+      function fling(card, dir){
+        const decision = (dir === "right") ? "like" : "nope";
+
+        // animate offscreen
+        card.style.transition = "transform 260ms ease, opacity 260ms ease";
+        const x = dir === "right" ? OFFSCREEN_X : -OFFSCREEN_X;
+        const y = (Math.random() * OFFSCREEN_Y) - (OFFSCREEN_Y/2);
+        const rot = dir === "right" ? ROTATION_MAX : -ROTATION_MAX;
+        card.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rot}deg)`;
+        card.style.opacity = "0.2";
+
+        // store history and advance
+        const profile = PROFILES[index];
+        history.push({ profile, decision });
+        index++;
+
+        // cleanup after animation
+        setTimeout(() => {
+          render();
+        }, 220);
+      }
+
+      // Buttons drive same logic
+      nopeBtn.onclick = () => fling(topCard, "left");
+      likeBtn.onclick = () => fling(topCard, "right");
+
+      // Message button: cute popup (you can customize)
+      msgBtn.onclick = () => {
+        alert("Message feature coming soon… but your smile is already delivered ✅");
+      };
+
+      // Undo
+      undoBtn.onclick = () => {
+        if(history.length === 0) return;
+        history.pop();
+        index = Math.max(0, index - 1);
+        render();
+      };
+    }
+
+    resetBtn.onclick = () => {
+      index = 0;
+      history = [];
+      render();
+    };
+
+    helpBtn.onclick = () => {
+      alert(
+        "How to play:\n\n• Swipe right = LIKE this version of me\n• Swipe left = NOPE (but I’ll recover)\n\nTip: Replace PROFILES with your own photos/names in the code."
+      );
+    };
+
+    finalYes.onclick = () => {
+      // Replace with your final page / WhatsApp link / confetti etc.
+      alert("YAYYYYY 💘 Screenshot this and send it to me 😌");
+    };
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>
