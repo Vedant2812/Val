@@ -383,25 +383,27 @@
      * Put your images in /img and update these:
      */
     const PROFILES = [
-      { name: "1st Catania Night Vedu", subtitle: "Remembers old memories a little too well. Knows good Italian food. Acts casual, but that night was anything but. Swipe right if you like reliving core memories(Smirk sold separately)", img: "img/vedant1.jpeg" },
+      { name: "1st Catania Night Vedu", subtitle: "Remembers old memories a little too well. Knows good Italian food. Acts casual, but that night was anything but. Swipe right if you like reliving core memories(Smirk sold separately)", location: "In denial (but with excellent pasta)", img: "img/vedant1.jpeg" },
 
       { name: "Sweet Gesture Vedu",
         subtitle: "Picks you up from the airport. Does sweet things and pretends it’s no big deal. Slowly realizes he’s very much in love. Swipe right if you like personal gestures(like this one lmao)",
+        location: "Arrivals gate, pretending it’s casual",
         img: "img/vedant2.jpeg"
       },
 
       { name: "1st Valentine Vedu",
         subtitle: "Buys you flowers. Makes Valentine’s feel intentional. What happened for the first time that night may happen again. Swipe right if you're down to relive that 😉",
+        location: "A flower shop… acting surprised",
         img: "img/vedant3.jpeg"
       },
 
-      { name: "Lovey Vedu", subtitle: "Tells you he loves you. Tells you why. Tells you again, just in case. Swipe right for the love", img: "img/vedant4.jpeg" },
-      { name: "Summer Vedu", subtitle: "Loves binge-watching shows with you, eating a lot, and that other thing we did every day that summer 😉 Swipe right for peak comfort", img: "img/vedant5.jpeg" },
-      { name: "Bombay Vedu", subtitle: "Elite host. Plans everything so you don’t have to. You just show up and enjoy. Swipe right for a stress-free night, guaranteed.", img: "img/vedant6.jpeg" },
-      { name: "Lage Raho Bombay Vedu", subtitle: "Bombay Vedu, but evolved. Says the three magic words that Manya always wants to hear: “Whatever you want.” Dangerously accommodating. Swipe right to have your way", img: "img/vedant7.jpeg" },
-      { name: "Goofy Vedu", subtitle: "Makes elite dad jokes and yaps with you all night long. Swipe right. Laughs included, sleep optional.", img: "img/vedant10.jpeg" },
-      { name: "Lets You Yap Vedu", subtitle: "Will let you yap. Best listener ever. Will remember everything you said. Swipe right to be heard", img: "img/vedant8.jpeg" },
-      { name: "Dadaji Vedu", subtitle: "Family-friendly, PG13 vedu. The kind you can bring home to Kamlesh and Ashwini(speaks Hindi too - soon to be a rare skill in your family :p). Will watch Bollywood movies with you(even ZNMD). Swipe right for Sanskaar", img: "img/vedant9.jpeg" },
+      { name: "Lovey Vedu", subtitle: "Tells you he loves you. Tells you why. Tells you again, just in case. Swipe right for the love", location: "Your inbox (respectfully)", img: "img/vedant4.jpeg" },
+      { name: "Summer Vedu", subtitle: "Loves binge-watching shows with you, eating a lot, and that other thing we did every day that summer 😉 Swipe right for peak comfort", location: "Under the blanket, permanently", img: "img/vedant5.jpeg" },
+      { name: "Bombay Vedu", subtitle: "Elite host. Plans everything so you don’t have to. You just show up and enjoy. Swipe right for a stress-free night, guaranteed.", location: "Mumbai, running logistics like a CEO", img: "img/vedant6.jpeg" },
+      { name: "Lage Raho Bombay Vedu", subtitle: "Bombay Vedu, but evolved. Says the three magic words that Manya always wants to hear: “Whatever you want.” Dangerously accommodating. Swipe right to have your way", location: "In your wishlist, taking notes", img: "img/vedant7.jpeg" },
+      { name: "Goofy Vedu", subtitle: "Makes elite dad jokes and yaps with you all night long. Swipe right. Laughs included, sleep optional.", location: "On a 3-hour yap call (thriving)", img: "img/vedant10.jpeg" },
+      { name: "Lets You Yap Vedu", subtitle: "Will let you yap. Best listener ever. Will remember everything you said. Swipe right to be heard", location: "In the group chat, silent but present", img: "img/vedant8.jpeg" },
+      { name: "Dadaji Vedu", subtitle: "Family-friendly, PG13 vedu. The kind you can bring home to Kamlesh and Ashwini(speaks Hindi too - soon to be a rare skill in your family :p). Will watch Bollywood movies with you(even ZNMD). Swipe right for Sanskaar", location: "At home, earning sanskaar points", img: "img/vedant9.jpeg" },
     ];
 
     // Feel tweaks:
@@ -565,6 +567,7 @@
         <div>
           <div class="name">${escapeHTML(profile.name)}</div>
           <div class="subtitle">${escapeHTML(profile.subtitle || "")}</div>
+          <div class="subtitle" style="margin-top:8px; opacity:.95;"><b>Lives:</b> ${escapeHTML(profile.location || "")}</div>
         </div>
         <div class="hint"></div>
       `;
