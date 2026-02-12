@@ -32,6 +32,7 @@
     .app{
       width:min(420px, 92vw);
       height:min(760px, 92vh);
+      height:min(760px, 92dvh); /* ✅ mobile: dynamic viewport height */
       background: rgba(255,255,255,.65);
       backdrop-filter: blur(14px);
       border: 1px solid rgba(255,255,255,.35);
@@ -77,6 +78,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      min-height:0; /* ✅ helps prevent bottom clipping in some mobile layouts */
     }
     .card{
       position:absolute;
@@ -298,6 +300,19 @@
       pointer-events:none;
       z-index:30;
       display:none;
+    }
+
+    /* ✅ Small-height phones: reduce bottom bar a bit so nothing gets cut */
+    @media (max-height: 740px){
+      .app{
+        height: 96vh;
+        height: 96dvh;
+        border-radius: 22px;
+      }
+      .bottombar{
+        height:84px;
+        padding: 10px 16px 12px;
+      }
     }
   </style>
 </head>
