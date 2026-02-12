@@ -12,7 +12,6 @@
       --shadow: 0 20px 60px rgba(0,0,0,.18);
       --text: #0b0b0f;
       --muted: rgba(0,0,0,.55);
-      --white: #fff;
       --like: #2fd38a;
       --nope: #ff4d5a;
     }
@@ -181,41 +180,8 @@
     .undo{color:#555; font-weight:900; font-size:18px}
     .msg{color:#ff2d55; font-weight:900; font-size:18px}
 
-    /* End screen */
-    .end{
-      position:absolute; inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
-      text-align:center;
-      z-index:10;
-    }
-    .end .box{
-      width:100%;
-      border-radius: 22px;
-      background: rgba(255,255,255,.75);
-      border: 1px solid rgba(255,255,255,.4);
-      box-shadow: 0 20px 60px rgba(0,0,0,.18);
-      padding: 22px;
-    }
-    .end h1{margin:0 0 10px; font-size: 28px}
-    .end p{margin:0 0 18px; color: var(--muted); line-height:1.4}
-    .end button{
-      width:100%;
-      border:0;
-      border-radius: 16px;
-      padding: 14px 16px;
-      font-weight: 900;
-      cursor:pointer;
-      background: linear-gradient(135deg, #ff2d55, #ff9500);
-      color:#fff;
-      box-shadow: 0 16px 35px rgba(255,45,85,.25);
-    }
-    .end button:active{transform:scale(.99)}
-
     /* MATCH overlay */
-    .match{
+    .match, .final{
       position:absolute;
       inset:0;
       display:none;
@@ -229,7 +195,7 @@
         linear-gradient(135deg, rgba(255,45,85,.92), rgba(255,149,0,.92));
       color:#fff;
     }
-    .match .panel{
+    .panel{
       width:100%;
       max-width: 380px;
       border-radius: 26px;
@@ -239,7 +205,7 @@
       padding: 18px 16px 16px;
       backdrop-filter: blur(10px);
     }
-    .match .title{
+    .title{
       font-weight: 1000;
       letter-spacing: 2px;
       font-size: 46px;
@@ -247,13 +213,13 @@
       text-shadow: 0 10px 30px rgba(0,0,0,.35);
       margin: 8px 0 10px;
     }
-    .match .sub{
+    .sub{
       opacity:.95;
       font-size: 14px;
       margin: 0 0 14px;
       text-shadow: 0 10px 30px rgba(0,0,0,.25);
     }
-    .match .avatars{
+    .avatars{
       display:flex;
       align-items:center;
       justify-content:center;
@@ -275,13 +241,13 @@
       object-fit:cover;
       display:block;
     }
-    .match .cta{
+    .cta{
       display:flex;
       flex-direction:column;
       gap:10px;
       margin-top: 12px;
     }
-    .match button{
+    button{
       border:0;
       border-radius: 16px;
       padding: 14px 14px;
@@ -298,7 +264,30 @@
       color:#fff;
       border: 1px solid rgba(255,255,255,.28);
     }
-    .match button:active{transform: scale(.99)}
+    button:active{transform: scale(.99)}
+
+    /* Final screen extras */
+    .final .big{
+      font-size: 30px;
+      font-weight: 1000;
+      margin: 8px 0 8px;
+      text-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .final .when{
+      display:inline-block;
+      margin-top: 6px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.25);
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+    .final .tiny{
+      margin-top: 10px;
+      opacity: .92;
+      font-size: 13px;
+    }
 
     /* Confetti canvas */
     #confetti{
@@ -326,35 +315,40 @@
     <div class="deck" id="deck">
       <canvas id="confetti"></canvas>
 
-      <!-- MATCH overlay -->
+      <!-- MATCH overlay (fires on FIRST right swipe ever) -->
       <div class="match" id="match">
         <div class="panel">
           <div class="title">MATCH!</div>
-          <p class="sub">You and <b id="matchName">Vedant</b> liked each other. Obviously.</p>
+          <p class="sub">You and <b id="matchName">Vedant</b> liked each other. Shockingly predictable.</p>
 
           <div class="avatars">
-            <!-- Left avatar is optional "her". If you don't want her photo, keep placeholder -->
-            <div class="avatar" title="Her">
-              <img id="herImg" alt="Her" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23ffffff' stop-opacity='.22'/%3E%3Cstop offset='1' stop-color='%23ffffff' stop-opacity='.05'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='300' height='400' rx='28' fill='url(%23g)'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-family='Arial' font-size='26'%3EYou%3C/text%3E%3C/svg%3E"/>
+            <div class="avatar" title="You">
+              <img id="herImg" alt="You" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23ffffff' stop-opacity='.22'/%3E%3Cstop offset='1' stop-color='%23ffffff' stop-opacity='.05'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='300' height='400' rx='28' fill='url(%23g)'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-family='Arial' font-size='26'%3EYou%3C/text%3E%3C/svg%3E"/>
             </div>
-            <div class="avatar" title="The Special Vedant">
+            <div class="avatar" title="Him (current card)">
               <img id="matchImg" alt="Match" />
             </div>
           </div>
 
           <div class="cta">
-            <button class="btnPrimary" id="askBtn">Will you be my Valentine? 💘</button>
-            <button class="btnGhost" id="keepSwipingBtn">Keep swiping (for science)</button>
+            <button class="btnPrimary" id="askBtn">So… will you be my Valentine? 💘</button>
+            <button class="btnGhost" id="keepSwipingBtn">Keep swiping (for fun)</button>
           </div>
         </div>
       </div>
 
-      <!-- End overlay -->
-      <div class="end" id="end">
-        <div class="box">
-          <h1>Okay… one last swipe 😌</h1>
-          <p>You’ve reviewed every version of me. The final version is: <b>me asking you out.</b></p>
-          <button id="finalYes">Will you be my Valentine? 💘</button>
+      <!-- FINAL sweet screen (no alerts) -->
+      <div class="final" id="final">
+        <div class="panel">
+          <div class="title">YAY 💘</div>
+          <div class="big">It’s a date.</div>
+          <div class="when">Friday night • 8:30pm</div>
+          <div class="tiny">Dress code: whatever makes you feel cute. I’ll handle the rest 😌</div>
+
+          <div class="cta" style="margin-top:14px;">
+            <button class="btnPrimary" id="finalClose">Close (and send me a selfie)</button>
+            <button class="btnGhost" id="finalKeep">Back to swiping</button>
+          </div>
         </div>
       </div>
     </div>
@@ -369,21 +363,15 @@
 
   <script>
     /**
-     * 1) Put your images in /img
-     * 2) Update name + subtitle + image path below
-     * 3) Set SPECIAL_MATCH_ID to the profile id that should trigger the MATCH overlay on RIGHT swipe.
+     * Put your images in /img and update these:
      */
-
     const PROFILES = [
-      { id: "soft",  name: "Vedant (Soft Boy Mode)",     subtitle: "Says sorry when you bump into him.", img: "img/vedant1.jpg" },
-      { id: "gym",   name: "Vedant (Gym Bro Arc)",       subtitle: "Protein shake. Respectfully.",       img: "img/vedant2.jpg" },
-      { id: "ceo",   name: "Vedant (CEO Energy)",        subtitle: "Asks for a ‘quick 2 minute call’.",  img: "img/vedant3.jpg" },
-      { id: "rom",   name: "Vedant (Hopeless Romantic)", subtitle: "Has a playlist. Unfortunately.",     img: "img/vedant4.jpg" },
-      { id: "gr",    name: "Vedant (Golden Retriever)",  subtitle: "Excited. About everything.",         img: "img/vedant5.jpg" },
+      { name: "Vedant (Soft Boy Mode)",     subtitle: "Says sorry when you bump into him.", img: "img/vedant1.jpg" },
+      { name: "Vedant (Gym Bro Arc)",       subtitle: "Protein shake. Respectfully.",       img: "img/vedant2.jpg" },
+      { name: "Vedant (CEO Energy)",        subtitle: "Asks for a ‘quick 2 minute call’.",  img: "img/vedant3.jpg" },
+      { name: "Vedant (Hopeless Romantic)", subtitle: "Has a playlist. Unfortunately.",     img: "img/vedant4.jpg" },
+      { name: "Vedant (Golden Retriever)",  subtitle: "Excited. About everything.",         img: "img/vedant5.jpg" },
     ];
-
-    // 👉 Choose which card triggers the MATCH overlay when swiped right:
-    const SPECIAL_MATCH_ID = "rom";
 
     // Feel tweaks:
     const SWIPE_THRESHOLD = 110;
@@ -394,11 +382,16 @@
     const STACK_Y_STEP = 8;
 
     const deck = document.getElementById("deck");
-    const endEl = document.getElementById("end");
 
     const matchEl = document.getElementById("match");
     const matchNameEl = document.getElementById("matchName");
     const matchImgEl = document.getElementById("matchImg");
+    const askBtn = document.getElementById("askBtn");
+    const keepSwipingBtn = document.getElementById("keepSwipingBtn");
+
+    const finalEl = document.getElementById("final");
+    const finalClose = document.getElementById("finalClose");
+    const finalKeep = document.getElementById("finalKeep");
 
     const confettiCanvas = document.getElementById("confetti");
     const ctx = confettiCanvas.getContext("2d");
@@ -409,10 +402,6 @@
     const msgBtn  = document.getElementById("msgBtn");
     const resetBtn = document.getElementById("resetBtn");
     const helpBtn  = document.getElementById("helpBtn");
-    const finalYes = document.getElementById("finalYes");
-
-    const askBtn = document.getElementById("askBtn");
-    const keepSwipingBtn = document.getElementById("keepSwipingBtn");
 
     // --- Subtle audio (generated tones; no external files)
     let audioCtx = null;
@@ -420,7 +409,6 @@
       if(!audioCtx){
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
-      // resume if suspended (mobile)
       if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
     }
     function tone({freq=440, duration=0.06, type="sine", gain=0.03, ramp=0.02}){
@@ -445,6 +433,7 @@
     let index = 0;
     let history = []; // {profile, decision}
     let isOverlayOpen = false;
+    let hasMatchedOnce = false; // ✅ match on FIRST right swipe ever
 
     // --- Confetti (lightweight)
     let confettiPieces = [];
@@ -489,7 +478,6 @@
 
         ctx.clearRect(0,0, confettiCanvas.width, confettiCanvas.height);
 
-        // no explicit colors requested by user; we’ll use default fillStyle per piece but not set to a palette
         confettiPieces.forEach(p => {
           p.x += p.vx;
           p.y += p.vy;
@@ -500,8 +488,6 @@
           ctx.globalAlpha = p.alpha;
           ctx.translate(p.x, p.y);
           ctx.rotate(p.rot);
-          // using current fillStyle without specifying colors explicitly; rely on browser default (black)
-          // To keep it visible, we’ll alternate between black/white via globalCompositeOperation trick:
           ctx.globalCompositeOperation = "screen";
           ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
           ctx.restore();
@@ -526,7 +512,6 @@
     function createCard(profile, positionFromTop){
       const card = document.createElement("div");
       card.className = "card";
-      card.dataset.id = profile.id;
 
       const scale = 1 - (positionFromTop * STACK_SCALE_STEP);
       const y = positionFromTop * STACK_Y_STEP;
@@ -568,10 +553,11 @@
       const remaining = PROFILES.slice(index);
 
       if(remaining.length === 0){
-        endEl.style.display = "flex";
+        // loop back for endless fun after she finishes
+        index = 0;
+        history = [];
+        render();
         return;
-      } else {
-        endEl.style.display = "none";
       }
 
       const toRender = remaining.slice(0, 3).reverse();
@@ -598,18 +584,17 @@
 
       const onPointerDown = (e) => {
         if(isOverlayOpen) return;
-        ensureAudio(); // enable audio after first interaction
+        ensureAudio();
         isDragging = true;
         topCard.style.transition = "none";
-        const p = { x: e.clientX, y: e.clientY };
-        startX = p.x; startY = p.y;
+        startX = e.clientX;
+        startY = e.clientY;
       };
 
       const onPointerMove = (e) => {
         if(!isDragging || isOverlayOpen) return;
-        const p = { x: e.clientX, y: e.clientY };
-        currentX = p.x - startX;
-        currentY = p.y - startY;
+        currentX = e.clientX - startX;
+        currentY = e.clientY - startY;
 
         const rot = clamp((currentX / 320) * ROTATION_MAX, -ROTATION_MAX, ROTATION_MAX);
         topCard.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) rotate(${rot}deg)`;
@@ -655,7 +640,6 @@
         const decision = (dir === "right") ? "like" : "nope";
         const profile = PROFILES[index];
 
-        // audio
         if(decision === "like") sfxSwipeRight(); else sfxSwipeLeft();
 
         // animate offscreen
@@ -669,24 +653,26 @@
         history.push({ profile, decision });
         index++;
 
-        // show match overlay if right-swipe on special card
-        const shouldMatch = (decision === "like" && profile.id === SPECIAL_MATCH_ID);
+        const shouldMatchNow = (decision === "like" && !hasMatchedOnce);
 
         setTimeout(() => {
           render();
-          if(shouldMatch){
+          if(shouldMatchNow){
+            hasMatchedOnce = true;
             openMatch(profile);
           }
         }, 220);
       }
 
-      // Buttons
       nopeBtn.onclick = () => fling(topCard, "left");
       likeBtn.onclick = () => fling(topCard, "right");
 
       msgBtn.onclick = () => {
         ensureAudio();
-        alert("Message feature coming soon… but your smile is already delivered ✅");
+        startConfetti(700);
+        // subtle, non-alert “message” = quick overlay pulse
+        openFinal("Bonus: you unlocked the message feature by being cute.");
+        setTimeout(() => closeFinal(), 1200);
       };
 
       undoBtn.onclick = () => {
@@ -700,10 +686,8 @@
 
     function openMatch(profile){
       isOverlayOpen = true;
-
       matchNameEl.textContent = profile.name;
       matchImgEl.src = profile.img;
-
       matchEl.style.display = "flex";
       sfxMatch();
       startConfetti(1700);
@@ -714,38 +698,62 @@
       isOverlayOpen = false;
     }
 
+    function openFinal(optionalLine){
+      isOverlayOpen = true;
+      finalEl.style.display = "flex";
+      sfxMatch();
+      startConfetti(1600);
+
+      // Optionally tweak the tiny line dynamically
+      const tiny = finalEl.querySelector(".tiny");
+      if(optionalLine){
+        tiny.textContent = optionalLine;
+      } else {
+        tiny.textContent = "Dress code: whatever makes you feel cute. I’ll handle the rest 😌";
+      }
+    }
+
+    function closeFinal(){
+      finalEl.style.display = "none";
+      isOverlayOpen = false;
+    }
+
+    // Match overlay buttons
     askBtn.onclick = () => {
       ensureAudio();
-      startConfetti(1400);
-      alert("YAYYYYY 💘 Screenshot this and send it to me 😌");
+      closeMatch();
+      openFinal();
     };
-
     keepSwipingBtn.onclick = () => {
       ensureAudio();
       closeMatch();
     };
 
+    // Final overlay buttons
+    finalClose.onclick = () => {
+      ensureAudio();
+      closeFinal();
+    };
+    finalKeep.onclick = () => {
+      ensureAudio();
+      closeFinal();
+    };
+
     resetBtn.onclick = () => {
       closeMatch();
+      closeFinal();
       index = 0;
       history = [];
+      hasMatchedOnce = false;
       render();
     };
 
     helpBtn.onclick = () => {
       alert(
-        "How to play:\n\n• Swipe right = LIKE this version of me\n• Swipe left = NOPE\n\nSpecial: One swipe-right triggers a MATCH screen 💘\n\nTo customize, edit PROFILES + SPECIAL_MATCH_ID in the code."
+        "How to play:\n\n• Swipe right = LIKE\n• Swipe left = NOPE\n\nSpecial:\n• The FIRST time you swipe right, it’s an instant MATCH 💘\n• After that, keep swiping just for fun."
       );
     };
 
-    finalYes.onclick = () => {
-      ensureAudio();
-      startConfetti(1600);
-      sfxMatch();
-      alert("YAYYYYY 💘 Screenshot this and send it to me 😌");
-    };
-
-    // Initial render
     render();
   </script>
 </body>
